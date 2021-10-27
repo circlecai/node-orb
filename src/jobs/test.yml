@@ -35,6 +35,12 @@ parameters:
       Optionally supply a custom package installation command, with any additional flags needed.
     type: string
     default: ""
+  test-results-path:
+    type: string
+    default: ""
+    description: |
+      If you use test-results-for, this will be configured automatically.
+      If you configure test results yourself (for example in your node config files) set this to the location that you write them to, and they will be uploaded.
 
 executor:
   name: default
@@ -72,3 +78,8 @@ steps:
             name: Run YARN 2.x Tests
             working_directory: <<parameters.app-dir>>
             command: yarn run <<parameters.run-command>>
+  - when: # upload test results if a path was given
+      condition: << parameters.test-results-path >>
+      steps:
+        store_test_results:
+          path: << parameters.test-results-path >>
