@@ -41,6 +41,11 @@ parameters:
     description: |
       If you use test-results-for, this will be configured automatically.
       If you configure test results yourself (for example in your node config files) set this to the location that you write them to, and they will be uploaded.
+  test-results-for:
+    type: string
+    default: ""
+    description: |
+      If this is set to jest, test results will automatically be produced and uploaded.
 
 executor:
   name: default
@@ -54,32 +59,81 @@ steps:
       pkg-manager: <<parameters.pkg-manager>>
       cache-version: <<parameters.cache-version>>
       override-ci-command: <<parameters.override-ci-command>>
-  - when: # Run tests for NPM
+  - when:
       condition:
-        equal: [npm, << parameters.pkg-manager >>]
+        equal: [jest, << parameters.test-results-for >>]
+      steps:
+        - run:
+            name: install test reporter
+            working_directory: <<parameters.app-dir>>
+            command: npm install --no-save jest-junit
+  - when: # Run tests for NPM, without test results
+      condition:
+        and:
+          - equal: [npm, << parameters.pkg-manager >>]
+          - not: << parameters.test-results-for >>
       steps:
         - run:
             name: Run NPM Tests
             working_directory: <<parameters.app-dir>>
             command: npm run <<parameters.run-command>>
-  - when: # Run tests for YARN
+  - when: # Run tests for NPM, with jest test results
       condition:
-        equal: [yarn, << parameters.pkg-manager >>]
+        and:
+          - equal: [npm, << parameters.pkg-manager >>]
+          - equal: [jest, << parameters.test-results-for >>]
+      steps:
+        - run:
+            name: Run NPM Tests
+            working_directory: <<parameters.app-dir>>
+            command: npm run <<parameters.run-command>> --reporters=default --reporters=jest-junit
+  - when: # Run tests for YARN, without test results
+      condition:
+        and:
+          - equal: [yarn, << parameters.pkg-manager >>]
+          - not: << parameters.test-results-for >>
       steps:
         - run:
             name: Run YARN Tests
             working_directory: <<parameters.app-dir>>
             command: yarn run <<parameters.run-command>>
-  - when: # Run tests for YARN 2.x
+  - when: # Run tests for YARN, with jest test results
       condition:
-        equal: [yarn-berry, << parameters.pkg-manager >>]
+        and:
+          - equal: [yarn, << parameters.pkg-manager >>]
+          - equal: [jest, << parameters.test-results-for >>]
+      steps:
+        - run:
+            name: Run YARN Tests
+            working_directory: <<parameters.app-dir>>
+            command: yarn run <<parameters.run-command>> --reporters=default --reporters=jest-junit
+  - when: # Run tests for YARN 2.x, without test results
+      condition:
+        and:
+          - equal: [yarn-berry, << parameters.pkg-manager >>]
+          - not: << parameters.test-results-for >>
       steps:
         - run:
             name: Run YARN 2.x Tests
             working_directory: <<parameters.app-dir>>
             command: yarn run <<parameters.run-command>>
+  - when: # Run tests for YARN 2.x, with jest test results
+      condition:
+        and:
+          - equal: [yarn-berry, << parameters.pkg-manager >>]
+          - equal: [jest, << parameters.test-results-for >>]
+      steps:
+        - run:
+            name: Run YARN 2.x Tests
+            working_directory: <<parameters.app-dir>>
+            command: yarn run <<parameters.run-command>> --reporters=default --reporters=jest-junit
   - when: # upload test results if a path was given
       condition: << parameters.test-results-path >>
       steps:
         store_test_results:
           path: << parameters.test-results-path >>
+  - when: # upload test results if it was automatically configured
+      condition: << parameters.test-results-for >>
+      steps:
+        store_test_results:
+          path: junit.xml
