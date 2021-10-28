@@ -184,6 +184,12 @@ workflows:
           name: node-test-job
           app-dir: "~/project/sample"
           cache-version: v3
+          test-results-for: jest
+      - node/test:
+          name: node-yarn-test-job
+          app-dir: "~/project/sample"
+          cache-version: v3
+          test-results-for: yarn
       - node/run:
           name: node-run-job
           app-dir: "~/project/sample"
