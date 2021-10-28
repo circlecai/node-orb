@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  node: circleci/node@<<pipeline.parameters.dev-orb-version>>
+  node: ccai/node@<<pipeline.parameters.dev-orb-version>>
   orb-tools: circleci/orb-tools@10.0.3
 
 # Pipeline parameters
@@ -145,7 +145,7 @@ workflows:
       # store CIRCLE_TOKEN as a project env var or Contexts resource
       # if using Contexts, add your context below
       - orb-tools/publish-dev:
-          orb-name: circleci/node
+          orb-name: ccai/node
           context: orb-publisher
           requires:
             - approve_for_testing
@@ -204,7 +204,7 @@ workflows:
       - integration-test-yarn
       - integration-test-yarn-berry
       - orb-tools/dev-promote-prod-from-commit-subject:
-          orb-name: circleci/node
+          orb-name: ccai/node
           context: orb-publisher
           add-pr-comment: true
           bot-token-variable: GHI_TOKEN
