@@ -19,7 +19,8 @@ integration-tests:
   &integration-tests [
     integration-test-install-specified-version,
     integration-test-install-lts,
-    node-test-job,
+    node-npm-test-job,
+    node-yarn-test-job,
     integration-test-install-latest,
     integration-test-override-ci,
     integration-test-yarn,
@@ -185,7 +186,7 @@ workflows:
             parameters:
               os: [linux, macos]
       - node/test:
-          name: node-test-job
+          name: node-npm-test-job
           app-dir: "~/project/sample"
           cache-version: v3
           test-results-for: jest
@@ -193,7 +194,9 @@ workflows:
           name: node-yarn-test-job
           app-dir: "~/project/sample"
           cache-version: v3
-          test-results-for: yarn
+          test-results-for: jest
+          pkg-manager: yarn
+          version: "14.15"
       - node/run:
           name: node-run-job
           app-dir: "~/project/sample"
