@@ -104,7 +104,9 @@ jobs:
           app-dir: "~/project/sample"
       - run: cd ~/project/sample && npm run test
   integration-test-yarn:
-    executor: node/default
+    executor:
+      name: node/default
+      tag: "14.15"
     steps:
       - checkout
       - node/install-packages:
@@ -113,7 +115,9 @@ jobs:
           app-dir: "~/project/sample"
       - run: cd ~/project/sample && yarn test
   integration-test-yarn-berry:
-    executor: node/default
+    executor:
+      name: node/default
+      tag: "14.15"
     steps:
       - checkout
       - node/install-packages:
