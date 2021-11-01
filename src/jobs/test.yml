@@ -136,4 +136,4 @@ steps:
       condition: << parameters.test-results-for >>
       steps:
         store_test_results:
-          path: junit.xml
+          path: <<parameters.app-dir>>/junit.xml
