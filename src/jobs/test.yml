@@ -86,7 +86,7 @@ steps:
         - run:
             name: Run NPM Tests
             working_directory: <<parameters.app-dir>>
-            command: npm run <<parameters.run-command>> --reporters=default --reporters=jest-junit
+            command: npm run <<parameters.run-command>> -- --reporters=default --reporters=jest-junit
   - when: # Run tests for YARN, without test results
       condition:
         and:
