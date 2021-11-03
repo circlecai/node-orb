@@ -42,8 +42,9 @@ parameters:
       If you use test-results-for, this will be configured automatically.
       If you configure test results yourself (for example in your node config files) set this to the location that you write them to, and they will be uploaded.
   test-results-for:
-    type: string
-    default: ""
+    default: other
+    type: enum
+    enum: ["jest", "other"]
     description: |
       If this is set to jest, test results will automatically be produced and uploaded.
 
@@ -63,10 +64,21 @@ steps:
       condition:
         equal: [jest, << parameters.test-results-for >>]
       steps:
-        - run:
-            name: install test reporter
-            working_directory: <<parameters.app-dir>>
-            command: npm install --no-save jest-junit
+        - install-packages:
+            app-dir: <<parameters.app-dir>>
+            pkg-manager: <<parameters.pkg-manager>>
+            cache-version: <<parameters.cache-version>>
+            override-ci-command: <<parameters.override-ci-command>>
+            extra-packages: "jest-junit"
+  - when:
+      condition:
+        equal: [other, << parameters.test-results-for >>]
+      steps:
+        - install-packages:
+            app-dir: <<parameters.app-dir>>
+            pkg-manager: <<parameters.pkg-manager>>
+            cache-version: <<parameters.cache-version>>
+            override-ci-command: <<parameters.override-ci-command>>
   - when: # Run tests for NPM, without test results
       condition:
         and:

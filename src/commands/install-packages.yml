@@ -36,6 +36,11 @@ parameters:
     default: true
     description: >
       If true, this cache bucket will only apply to jobs within the same branch.
+  extra-packages:
+    type: string
+    default: ""
+    description: |
+      Other packages to install. Intended for internal use.
 
 steps:
   - run:
@@ -94,23 +99,35 @@ steps:
               else
                 npm ci
               fi
-        - when: # cache enabled, save cache
-            condition: << parameters.with-cache >>
+  - when:
+      condition: << parameters.extra-packages >>
+      steps:
+        - run:
+            name: install extra packages
+            working_directory: <<parameters.app-dir>>
+            command: npm install --no-save << parameters.extra-packages >>
+  - when: # cache enabled, save cache
+      condition:
+        and:
+          - << parameters.with-cache >>
+          - or:
+              - equal: [npm, << parameters.pkg-manager >>]
+              - << parameters.extra-packages >>
+      steps:
+        - when: # custom cache path selected
+            condition: << parameters.cache-path >>
             steps:
-              - when: # custom cache path selected
-                  condition: << parameters.cache-path >>
-                  steps:
-                    - save_cache:
-                        key: node-deps-{{ arch }}-<<parameters.cache-version>>-<<#parameters.include-branch-in-cache-key>>{{ .Branch }}-<</parameters.include-branch-in-cache-key>>{{ checksum "/tmp/node-project-package.json" }}-{{ checksum "/tmp/node-project-lockfile" }}
-                        paths:
-                          - <<parameters.cache-path>>
-              - unless: # npm ci cache path
-                  condition: << parameters.cache-path >>
-                  steps:
-                    - save_cache:
-                        key: node-deps-{{ arch }}-<<parameters.cache-version>>-<<#parameters.include-branch-in-cache-key>>{{ .Branch }}-<</parameters.include-branch-in-cache-key>>{{ checksum "/tmp/node-project-package.json" }}-{{ checksum "/tmp/node-project-lockfile" }}
-                        paths:
-                          - ~/.npm
+              - save_cache:
+                  key: node-deps-{{ arch }}-<<parameters.cache-version>>-<<#parameters.include-branch-in-cache-key>>{{ .Branch }}-<</parameters.include-branch-in-cache-key>>{{ checksum "/tmp/node-project-package.json" }}-{{ checksum "/tmp/node-project-lockfile" }}
+                  paths:
+                    - <<parameters.cache-path>>
+        - unless: # npm ci cache path
+            condition: << parameters.cache-path >>
+            steps:
+              - save_cache:
+                  key: node-deps-{{ arch }}-<<parameters.cache-version>>-<<#parameters.include-branch-in-cache-key>>{{ .Branch }}-<</parameters.include-branch-in-cache-key>>{{ checksum "/tmp/node-project-package.json" }}-{{ checksum "/tmp/node-project-lockfile" }}
+                  paths:
+                    - ~/.npm
 
   - when: # Install packages based on YARN
       condition:
