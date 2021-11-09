@@ -106,26 +106,23 @@ steps:
                     name: install extra packages
                     working_directory: <<parameters.app-dir>>
                     command: npm install -g << parameters.global-packages >>
-  - when: # cache enabled, save cache
-      condition:
-        and:
-          - << parameters.with-cache >>
-          - equal: [npm, << parameters.pkg-manager >>]
-      steps:
-        - when: # custom cache path selected
-            condition: << parameters.cache-path >>
+        - when: # cache enabled, save cache
+            condition: << parameters.with-cache >>
             steps:
-              - save_cache:
-                  key: node-deps-{{ arch }}-<<parameters.cache-version>>-<<#parameters.include-branch-in-cache-key>>{{ .Branch }}-<</parameters.include-branch-in-cache-key>>{{ checksum "/tmp/node-project-package.json" }}-{{ checksum "/tmp/node-project-lockfile" }}
-                  paths:
-                    - <<parameters.cache-path>>
-        - unless: # npm ci cache path
-            condition: << parameters.cache-path >>
-            steps:
-              - save_cache:
-                  key: node-deps-{{ arch }}-<<parameters.cache-version>>-<<#parameters.include-branch-in-cache-key>>{{ .Branch }}-<</parameters.include-branch-in-cache-key>>{{ checksum "/tmp/node-project-package.json" }}-{{ checksum "/tmp/node-project-lockfile" }}
-                  paths:
-                    - ~/.npm
+              - when: # custom cache path selected
+                  condition: << parameters.cache-path >>
+                  steps:
+                    - save_cache:
+                        key: node-deps-{{ arch }}-<<parameters.cache-version>>-<<#parameters.include-branch-in-cache-key>>{{ .Branch }}-<</parameters.include-branch-in-cache-key>>{{ checksum "/tmp/node-project-package.json" }}-{{ checksum "/tmp/node-project-lockfile" }}
+                        paths:
+                          - <<parameters.cache-path>>
+              - unless: # npm ci cache path
+                  condition: << parameters.cache-path >>
+                  steps:
+                    - save_cache:
+                        key: node-deps-{{ arch }}-<<parameters.cache-version>>-<<#parameters.include-branch-in-cache-key>>{{ .Branch }}-<</parameters.include-branch-in-cache-key>>{{ checksum "/tmp/node-project-package.json" }}-{{ checksum "/tmp/node-project-lockfile" }}
+                        paths:
+                          - ~/.npm
 
   - when: # Install packages based on YARN
       condition:
