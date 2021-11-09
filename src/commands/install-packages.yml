@@ -99,20 +99,18 @@ steps:
               else
                 npm ci
               fi
-  - when:
-      condition: << parameters.global-packages >>
-      steps:
-        - run:
-            name: install extra packages
-            working_directory: <<parameters.app-dir>>
-            command: npm install -g << parameters.global-packages >>
+        - when:
+            condition: << parameters.global-packages >>
+            steps:
+                - run:
+                    name: install extra packages
+                    working_directory: <<parameters.app-dir>>
+                    command: npm install -g << parameters.global-packages >>
   - when: # cache enabled, save cache
       condition:
         and:
           - << parameters.with-cache >>
-          - or:
-              - equal: [npm, << parameters.pkg-manager >>]
-              - << parameters.global-packages >>
+          - equal: [npm, << parameters.pkg-manager >>]
       steps:
         - when: # custom cache path selected
             condition: << parameters.cache-path >>
@@ -143,6 +141,13 @@ steps:
               else
                 yarn install --frozen-lockfile
               fi
+        - when:
+            condition: << parameters.global-packages >>
+            steps:
+                - run:
+                    name: install extra packages
+                    working_directory: <<parameters.app-dir>>
+                    command: yarn global install << parameters.global-packages >>
         - when: # cache enabled, save cache
             condition: << parameters.with-cache >>
             steps:
