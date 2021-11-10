@@ -163,7 +163,7 @@ steps:
                         paths:
                           - <<parameters.app-dir>>/node_modules
 
-  - when: # Install packages based on YARN
+  - when: # Install packages based on YARN 2.0
       condition:
         equal: [yarn-berry, << parameters.pkg-manager >>]
       steps:
@@ -177,6 +177,13 @@ steps:
               else
                 yarn install --immutable
               fi
+        - when:
+            condition: << parameters.global-packages >>
+            steps:
+                - run:
+                    name: install extra packages
+                    working_directory: <<parameters.app-dir>>
+                    command: yarn global install << parameters.global-packages >>
         - when: # cache enabled, save cache
             condition: << parameters.with-cache >>
             steps:
