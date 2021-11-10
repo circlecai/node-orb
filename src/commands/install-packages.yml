@@ -105,7 +105,7 @@ steps:
                 - run:
                     name: install extra packages
                     working_directory: <<parameters.app-dir>>
-                    command: npm install -g << parameters.global-packages >>
+                    command: sudo npm install -g << parameters.global-packages >> # TODO: add the relevant thing to cached directories
         - when: # cache enabled, save cache
             condition: << parameters.with-cache >>
             steps:
@@ -144,7 +144,7 @@ steps:
                 - run:
                     name: install extra packages
                     working_directory: <<parameters.app-dir>>
-                    command: yarn global install << parameters.global-packages >>
+                    command: yarn global add << parameters.global-packages >>
         - when: # cache enabled, save cache
             condition: << parameters.with-cache >>
             steps:
