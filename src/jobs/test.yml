@@ -64,7 +64,7 @@ steps:
             pkg-manager: <<parameters.pkg-manager>>
             cache-version: <<parameters.cache-version>>
             override-ci-command: <<parameters.override-ci-command>>
-            global-packages: "jest-junit"
+            extra-packages: "jest-junit"
   - when:
       condition:
         equal: [other, << parameters.test-results-for >>]
