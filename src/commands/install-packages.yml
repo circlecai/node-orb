@@ -155,8 +155,23 @@ steps:
                         key: node-deps-{{ arch }}-<<parameters.cache-version>>-<<#parameters.include-branch-in-cache-key>>{{ .Branch }}-<</parameters.include-branch-in-cache-key>>{{ checksum "/tmp/node-project-package.json" }}-{{ checksum "/tmp/node-project-lockfile" }}
                         paths:
                           - <<parameters.cache-path>>
-              - unless: # use node modules
-                  condition: << parameters.cache-path >>
+              - when:
+                  condition:
+                    and:
+                      - not: << parameters.cache-path >>
+                      - << parameters.test-results-for >>
+                  steps:
+                    - save_cache:
+                        key: node-deps-{{ arch }}-<<parameters.cache-version>>-<<#parameters.include-branch-in-cache-key>>{{ .Branch }}-<</parameters.include-branch-in-cache-key>>{{ checksum "/tmp/node-project-package.json" }}-{{ checksum "/tmp/node-project-lockfile" }}
+                        paths:
+                          - <<parameters.app-dir>>/node_modules
+                          - ~/.npm
+
+              - when: # use node modules
+                  condition:
+                    and:
+                      - not: << parameters.cache-path >>
+                      - not: << parameters.test-results-for >>
                   steps:
                     - save_cache:
                         key: node-deps-{{ arch }}-<<parameters.cache-version>>-<<#parameters.include-branch-in-cache-key>>{{ .Branch }}-<</parameters.include-branch-in-cache-key>>{{ checksum "/tmp/node-project-package.json" }}-{{ checksum "/tmp/node-project-lockfile" }}
