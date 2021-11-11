@@ -36,11 +36,11 @@ parameters:
     default: true
     description: >
       If true, this cache bucket will only apply to jobs within the same branch.
-  extra-packages:
+  extra-package:
     type: string
     default: ""
     description: |
-      Other packages to install. Intended for internal use.
+      An extra package to install. Intended for internal use.
 
 steps:
   - run:
@@ -100,12 +100,12 @@ steps:
                 npm ci
               fi
         - when:
-            condition: << parameters.extra-packages >>
+            condition: << parameters.extra-package >>
             steps:
                 - run:
                     name: install extra packages
                     working_directory: <<parameters.app-dir>>
-                    command: npm install --no-save << parameters.extra-packages >>
+                    command: npm list << parameters.extra-package >> || npm install --no-save << parameters.extra-package >>
         - when: # cache enabled, save cache
             condition: << parameters.with-cache >>
             steps:
@@ -139,12 +139,12 @@ steps:
                 yarn install --frozen-lockfile
               fi
         - when:
-            condition: << parameters.extra-packages >>
+            condition: << parameters.extra-package >>
             steps:
                 - run:
                     name: install extra packages
                     working_directory: <<parameters.app-dir>>
-                    command: npm install --no-save << parameters.extra-packages >> # TODO: add npm to cache directory
+                    command: npm list << parameters.extra-package >> || npm install --no-save << parameters.extra-package >>
         - when: # cache enabled, save cache
             condition: << parameters.with-cache >>
             steps:
@@ -159,7 +159,7 @@ steps:
                   condition:
                     and:
                       - not: << parameters.cache-path >>
-                      - << parameters.extra-packages >>
+                      - << parameters.extra-package >>
                   steps:
                     - save_cache:
                         key: node-deps-{{ arch }}-<<parameters.cache-version>>-<<#parameters.include-branch-in-cache-key>>{{ .Branch }}-<</parameters.include-branch-in-cache-key>>{{ checksum "/tmp/node-project-package.json" }}-{{ checksum "/tmp/node-project-lockfile" }}
@@ -171,7 +171,7 @@ steps:
                   condition:
                     and:
                       - not: << parameters.cache-path >>
-                      - not: << parameters.extra-packages >>
+                      - not: << parameters.extra-package >>
                   steps:
                     - save_cache:
                         key: node-deps-{{ arch }}-<<parameters.cache-version>>-<<#parameters.include-branch-in-cache-key>>{{ .Branch }}-<</parameters.include-branch-in-cache-key>>{{ checksum "/tmp/node-project-package.json" }}-{{ checksum "/tmp/node-project-lockfile" }}
@@ -193,12 +193,12 @@ steps:
                 yarn install --immutable
               fi
         - when:
-            condition: << parameters.extra-packages >>
+            condition: << parameters.extra-package >>
             steps:
                 - run:
                     name: install extra packages
                     working_directory: <<parameters.app-dir>>
-                    command: npm install --no-save << parameters.extra-packages >> # TODO: add npm to cache directory
+                    command: npm list << parameters.extra-package >> || npm install --no-save << parameters.extra-package >>
         - when: # cache enabled, save cache
             condition: << parameters.with-cache >>
             steps:
@@ -213,7 +213,7 @@ steps:
                   condition:
                     and:
                       - not: << parameters.cache-path >>
-                      - << parameters.extra-packages >>
+                      - << parameters.extra-package >>
                   steps:
                     - save_cache:
                         key: node-deps-{{ arch }}-<<parameters.cache-version>>-<<#parameters.include-branch-in-cache-key>>{{ .Branch }}-<</parameters.include-branch-in-cache-key>>{{ checksum "/tmp/node-project-package.json" }}-{{ checksum "/tmp/node-project-lockfile" }}
@@ -225,7 +225,7 @@ steps:
                   condition:
                     and:
                       - not: << parameters.cache-path >>
-                      - not: << parameters.extra-packages >>
+                      - not: << parameters.extra-package >>
                   steps:
                     - save_cache:
                         key: node-deps-{{ arch }}-<<parameters.cache-version>>-<<#parameters.include-branch-in-cache-key>>{{ .Branch }}-<</parameters.include-branch-in-cache-key>>{{ checksum "/tmp/node-project-package.json" }}-{{ checksum "/tmp/node-project-lockfile" }}
