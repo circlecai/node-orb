@@ -19,7 +19,8 @@ integration-tests:
   &integration-tests [
     integration-test-install-specified-version,
     integration-test-install-lts,
-    node-test-job,
+    node-npm-test-job,
+    node-yarn-test-job,
     integration-test-install-latest,
     integration-test-override-ci,
     integration-test-yarn,
@@ -104,7 +105,9 @@ jobs:
           app-dir: "~/project/sample"
       - run: cd ~/project/sample && npm run test
   integration-test-yarn:
-    executor: node/default
+    executor:
+      name: node/default
+      tag: "14.15"
     steps:
       - checkout
       - node/install-packages:
@@ -113,7 +116,9 @@ jobs:
           app-dir: "~/project/sample"
       - run: cd ~/project/sample && yarn test
   integration-test-yarn-berry:
-    executor: node/default
+    executor:
+      name: node/default
+      tag: "14.15"
     steps:
       - checkout
       - node/install-packages:
@@ -181,9 +186,17 @@ workflows:
             parameters:
               os: [linux, macos]
       - node/test:
-          name: node-test-job
+          name: node-npm-test-job
           app-dir: "~/project/sample"
-          cache-version: v3
+          cache-version: v4
+          test-results-for: jest
+      - node/test:
+          name: node-yarn-test-job
+          app-dir: "~/project/sample"
+          cache-version: v4
+          test-results-for: jest
+          pkg-manager: yarn
+          version: "14.15"
       - node/run:
           name: node-run-job
           app-dir: "~/project/sample"
