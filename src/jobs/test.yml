@@ -64,7 +64,7 @@ steps:
       condition:
         and:
           - equal: [npm, << parameters.pkg-manager >>]
-          - not: << parameters.test-results-for >>
+          - equal: [none, << parameters.test-results-for >>]
       steps:
         - run:
             name: Run NPM Tests
@@ -88,7 +88,7 @@ steps:
       condition:
         and:
           - equal: [yarn, << parameters.pkg-manager >>]
-          - not: << parameters.test-results-for >>
+          - equal: [none, << parameters.test-results-for >>]
       steps:
         - run:
             name: Run YARN Tests
@@ -112,7 +112,7 @@ steps:
       condition:
         and:
           - equal: [yarn-berry, << parameters.pkg-manager >>]
-          - not: << parameters.test-results-for >>
+          - equal: [none, << parameters.test-results-for >>]
       steps:
         - run:
             name: Run YARN 2.x Tests
