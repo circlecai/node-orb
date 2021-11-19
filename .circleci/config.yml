@@ -36,7 +36,7 @@ executors:
       - image: cimg/base:stable
   macos:
     macos:
-      xcode: 11.4
+      xcode: 12.5.1
 
 jobs:
   # Install Node.js into a non-node container.
@@ -166,6 +166,30 @@ jobs:
                  --url https://circleci.com/api/v2/project/gh/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/$TEST_JOB_NUMBER/tests \
                  --header 'authorization: Basic $CIRCLE_TOKEN' \
             | jq '.items | length | if . != 1 then halt_error else . end'
+      - run:
+          name: check for node-npm-mocha-test-job test results
+          command: |
+            export TEST_JOB_NUMBER=$(jq '.items[] | select(.name == "node-npm-mocha-test-job") | .job_number' workflow.json)
+            curl --request GET \
+                 --url https://circleci.com/api/v2/project/gh/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/$TEST_JOB_NUMBER/tests \
+                 --header 'authorization: Basic $CIRCLE_TOKEN' \
+            | jq '.items | length | if . != 1 then halt_error else . end'
+      - run:
+          name: check for node-yarn-mocha-test-job test results
+          command: |
+            export TEST_JOB_NUMBER=$(jq '.items[] | select(.name == "node-yarn-mocha-test-job") | .job_number' workflow.json)
+            curl --request GET \
+                 --url https://circleci.com/api/v2/project/gh/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/$TEST_JOB_NUMBER/tests \
+                 --header 'authorization: Basic $CIRCLE_TOKEN' \
+            | jq '.items | length | if . != 1 then halt_error else . end'
+      - run:
+          name: check for node-yarn-berry-mocha-test-job test results
+          command: |
+            export TEST_JOB_NUMBER=$(jq '.items[] | select(.name == "node-yarn-berry-mocha-test-job") | .job_number' workflow.json)
+            curl --request GET \
+                 --url https://circleci.com/api/v2/project/gh/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/$TEST_JOB_NUMBER/tests \
+                 --header 'authorization: Basic $CIRCLE_TOKEN' \
+            | jq '.items | length | if . != 1 then halt_error else . end'
 
 workflows:
   # This `lint-pack_validate_publish-dev` workflow will run on any commit.
@@ -238,6 +262,29 @@ workflows:
           pkg-manager: yarn
           version: "14.15"
       - node/test:
+          name: node-npm-mocha-test-job
+          app-dir: "~/project/sample"
+          cache-version: v4
+          test-results-for: mocha
+          run-command: testmocha
+      - node/test:
+          name: node-yarn-mocha-test-job
+          app-dir: "~/project/sample"
+          cache-version: v4
+          test-results-for: mocha
+          pkg-manager: yarn
+          run-command: testmocha
+          version: "14.15"
+      - node/test:
+          name: node-yarn-mocha-with-test-result-path-job
+          app-dir: "~/project/sample"
+          cache-version: v4
+          test-results-for: mocha
+          pkg-manager: yarn
+          run-command: testmocha
+          version: "14.15"
+          test-results-path: sample/test-results.xml
+      - node/test:
           name: node-test-results-file-job
           app-dir: "~/project/sample"
           cache-version: v4
@@ -251,6 +298,8 @@ workflows:
           requires:
             - node-npm-test-job
             - node-yarn-test-job
+            - node-npm-mocha-test-job
+            - node-yarn-mocha-test-job
             - node-test-results-file-job
       - node/run:
           name: node-run-job
